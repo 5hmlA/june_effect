@@ -1,4 +1,4 @@
-package jonas.ospl.june_3d_example
+package jzy.june.june_effect_example
 
 import io.flutter.embedding.android.FlutterActivity
 

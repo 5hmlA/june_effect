@@ -1,6 +1,6 @@
-# june_3d_example
+# june_effect_example
 
-Demonstrates how to use the june_3d plugin.
+Demonstrates how to use the june_effect plugin.
 
 ## Getting Started
 

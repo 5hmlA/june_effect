@@ -28,10 +28,10 @@ flutter:
   plugin:
     platforms:
       android:
-        package: jonas.ospl.june_3d
-        pluginClass: June3dPlugin
+        package: jzy.june.june_effect
+        pluginClass: JuneEffectPlugin
       ios:
-        pluginClass: June3dPlugin
+        pluginClass: JuneEffectPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

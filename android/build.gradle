@@ -1,4 +1,4 @@
-group 'jonas.ospl.june_3d'
+group 'jzy.june.june_effect'
 version '1.0-SNAPSHOT'
 
 buildscript {

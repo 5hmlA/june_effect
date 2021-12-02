@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:june_3d/june_3d.dart';
-import 'package:june_3d_example/page_view_simple.dart';
+import 'package:june_effect/june_effect.dart';
+import 'package:june_effect_example/page_view_simple.dart';
 
 import 'digital_flop_sample.dart';
 import 'fb_switch_test.dart';

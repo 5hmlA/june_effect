@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:june_3d/june_3d.dart';
+import 'package:june_effect/june_effect.dart';
 
 class FBSwitcherDemo extends StatefulWidget {
   @override

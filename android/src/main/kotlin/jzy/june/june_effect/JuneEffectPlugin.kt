@@ -1,4 +1,4 @@
-package jonas.ospl.june_3d
+package jzy.june.june_effect
 
 import androidx.annotation.NonNull
 
@@ -8,8 +8,8 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-/** June3dPlugin */
-class June3dPlugin: FlutterPlugin, MethodCallHandler {
+/** JuneEffectPlugin */
+class JuneEffectPlugin: FlutterPlugin, MethodCallHandler {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -17,7 +17,7 @@ class June3dPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "june_3d")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "june_effect")
     channel.setMethodCallHandler(this)
   }
 

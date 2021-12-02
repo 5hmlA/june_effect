@@ -1,10 +1,10 @@
 import Flutter
 import UIKit
 
-public class SwiftJune3dPlugin: NSObject, FlutterPlugin {
+public class SwiftJuneEffectPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "june_3d", binaryMessenger: registrar.messenger())
-    let instance = SwiftJune3dPlugin()
+    let channel = FlutterMethodChannel(name: "june_effect", binaryMessenger: registrar.messenger())
+    let instance = SwiftJuneEffectPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
