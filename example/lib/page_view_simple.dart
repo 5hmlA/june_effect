@@ -50,6 +50,9 @@ class PageViewSimple extends StatelessWidget {
         SizedBox(
           height: 300,
           child: JunePageView(
+            modifier: const Modifier(viewportFraction: .8,padEnds: false,scrollDirection: Axis
+                .vertical),
+            transform: StackTransform(),
             itemBuilder: (context, index) {
               return Container(
                   color: Colors.primaries[index % 9],

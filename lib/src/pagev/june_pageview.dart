@@ -1,34 +1,37 @@
 import 'dart:math';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 typedef AniItemBuilder = Widget Function(
     BuildContext context, int index, double page, double aniValue);
 
-@immutable
 class JunePageView extends StatefulWidget {
   final IndexedWidgetBuilder? itemBuilder;
   final AniItemBuilder? aniItemBuilder;
   final ValueChanged<int>? onPageChanged;
   final PageController? controller;
   final PageTransform? transform;
+  final Modifier modifier;
   final int? cacheItemSize;
   final int? itemCount;
 
   const JunePageView({
     Key? key,
     required this.itemBuilder,
+    this.modifier = const Modifier(),
     this.onPageChanged,
-    this.transform = const CubeTransform(),
     this.controller,
     this.itemCount,
     this.cacheItemSize = 4,
+    this.transform,
   })  : aniItemBuilder = null,
         super(key: key);
 
   const JunePageView.aniBuilder({
     Key? key,
     required this.aniItemBuilder,
+    this.modifier = const Modifier(),
     this.controller,
     this.itemCount,
   })  : itemBuilder = null,
@@ -49,8 +52,11 @@ class _JunePageViewState extends State<JunePageView> {
   @override
   void initState() {
     super.initState();
-    _pageController = widget.controller ?? PageController();
-    _pageController.addListener(() {});
+    _pageController = widget.controller ??
+        PageController(
+            initialPage: widget.modifier.initialPage,
+            viewportFraction: widget.modifier.viewportFraction);
+    widget.transform?.modifier = widget.modifier;
   }
 
   @override
@@ -62,8 +68,16 @@ class _JunePageViewState extends State<JunePageView> {
   @override
   Widget build(BuildContext context) {
     return PageView.builder(
+      scrollDirection: widget.modifier.scrollDirection,
       controller: _pageController,
+      padEnds: widget.modifier.padEnds,
       itemCount: widget.itemCount,
+      physics: widget.modifier.physics,
+      allowImplicitScrolling: widget.modifier.allowImplicitScrolling,
+      clipBehavior: widget.modifier.clipBehavior,
+      scrollBehavior: widget.modifier.scrollBehavior,
+      dragStartBehavior: widget.modifier.dragStartBehavior,
+      reverse: widget.modifier.reverse,
       itemBuilder: (BuildContext context, int index) {
         if (widget.aniItemBuilder != null) {
           return aniBuildItem(index, widget.aniItemBuilder);
@@ -75,16 +89,13 @@ class _JunePageViewState extends State<JunePageView> {
   }
 
   Widget aniBuildItem(int index, aniItemBuilder) {
-    if (!_pageController.position.hasContentDimensions || _pageController.page == null) {
-      return aniItemBuilder(context, index, 0.0, 1.0);
-    }
-
     ///开始做动画
     return AnimatedBuilder(
         animation: _pageController,
         builder: (context, child) {
-          final double aniValue = 1 - (_pageController.page! - index).abs();
-          return aniItemBuilder(context, index, _pageController.page!, aniValue);
+          double page = pageSafe(_pageController);
+          final double aniValue = 1 - (page - index).abs();
+          return aniItemBuilder(context, index, page, aniValue);
         });
   }
 
@@ -98,35 +109,87 @@ class _JunePageViewState extends State<JunePageView> {
         cache.remove(cacheIndexs.removeAt(0));
       }
     }
-    if (!_pageController.position.hasContentDimensions || _pageController.page == null) {
-      return item;
-    }
 
     ///开始做动画
     return AnimatedBuilder(
         animation: _pageController,
         builder: (context, child) {
-          final double changing = 1 - (_pageController.page! - index).abs();
-          return widget.transform!.transform(index, _pageController.page!, changing, item!);
+          double page = pageSafe(_pageController);
+          final double changing = 1 - (page - index).abs();
+          if(widget.transform == null) {
+            return item!;
+          }
+          return widget.transform!.transform(index, page, changing, item!);
         });
+  }
+
+  double pageSafe(PageController pageController) {
+    if (!pageController.position.hasContentDimensions || pageController.page == null) {
+      return 0;
+    } else {
+      return pageController.page!;
+    }
   }
 }
 
 abstract class PageTransform {
-  const PageTransform();
+  Modifier? modifier;
+
+  PageTransform();
 
   Widget transform(int index, double page, double aniValue, Widget child);
 }
 
-@immutable
+class Modifier {
+  final PageController? controller;
+  final double viewportFraction;
+  final Axis scrollDirection;
+  final bool reverse;
+  final ScrollPhysics? physics;
+  final bool pageSnapping;
+  final ValueChanged<int>? onPageChanged;
+  final DragStartBehavior dragStartBehavior;
+  final bool allowImplicitScrolling;
+  final String? restorationId;
+  final Clip clipBehavior;
+  final ScrollBehavior? scrollBehavior;
+  final bool padEnds;
+  final int initialPage;
+
+  const Modifier({
+    this.scrollDirection = Axis.horizontal,
+    this.initialPage = 0,
+    this.reverse = false,
+    this.viewportFraction = 1.0,
+    this.controller,
+    this.physics,
+    this.pageSnapping = true,
+    this.onPageChanged,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.allowImplicitScrolling = false,
+    this.restorationId,
+    this.clipBehavior = Clip.hardEdge,
+    this.scrollBehavior,
+    this.padEnds = true,
+  });
+}
+
 class CubeTransform extends PageTransform {
-  const CubeTransform();
+  CubeTransform();
 
   @override
   Widget transform(int index, double page, double aniValue, Widget child) {
     if (aniValue < 0) {
       return const SizedBox();
     }
+    if (modifier?.scrollDirection == Axis.horizontal) {
+      return horizontal(aniValue, index, page, child);
+    } else {
+      return vertical(aniValue, index, page, child);
+    }
+  }
+
+  Transform horizontal(double aniValue, int index, double page, Widget child) {
     var alignment = Alignment.centerRight;
     var value = 1 - aniValue;
     if (index > 0) {
@@ -147,5 +210,104 @@ class CubeTransform extends PageTransform {
       alignment: alignment,
       child: child,
     );
+  }
+
+  Transform vertical(double aniValue, int index, double page, Widget child) {
+    var alignment = Alignment.centerRight;
+    var value = 1 - aniValue;
+    if (index > 0) {
+      if (page >= index) {
+        /// _pageController.page > index 向上滑动 划出下一页 下一页可见
+        alignment = Alignment.bottomCenter;
+        value = 1 - aniValue;
+      } else {
+        /// _pageController.page < index 向下滑动 划出上一页
+        alignment = Alignment.topCenter;
+        value = aniValue - 1;
+      }
+    }
+    return Transform(
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, -0.001)
+        ..rotateX(pi / 2 * value),
+      alignment: alignment,
+      child: child,
+    );
+  }
+}
+
+class StackTransform extends PageTransform {
+  StackTransform();
+
+  @override
+  Widget transform(int index, double page, double aniValue, Widget child) {
+
+    if (modifier?.scrollDirection == Axis.horizontal) {
+      return horizontal(aniValue, index, page, child);
+    } else {
+      return vertical(aniValue, index, page, child);
+    }
+  }
+
+  Transform horizontal(double aniValue, int index, double page, Widget child) {
+    var alignment = Alignment.centerRight;
+    var value = 1 - aniValue;
+    if (index > 0) {
+      if (page >= index) {
+        /// _pageController.page > index 向右滑动 划出下一页 下一页可见
+        alignment = Alignment.centerRight;
+        value = 1 - aniValue;
+      } else {
+        /// _pageController.page < index 向左滑动 划出上一页
+        alignment = Alignment.centerLeft;
+        value = aniValue - 1;
+      }
+    }
+    return Transform(
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.001)
+        ..rotateY(pi / 2 * value),
+      alignment: alignment,
+      child: child,
+    );
+  }
+
+  Transform vertical(double aniValue, int index, double page, Widget child) {
+    var alignment = Alignment.centerRight;
+    var value = 1 - aniValue;
+    if (page >= index) {
+      /// _pageController.page > index 向右滑动 划出下一页 下一页可见
+      alignment = Alignment.bottomCenter;
+
+      value = 1 - (aniValue);
+      return Transform(
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, -0.001)
+          ..rotateX(pi / 2 * value),
+        alignment: alignment,
+        child: child,
+      );
+    } else {
+      /// _pageController.page < index 向下滑动 划出上一页
+      alignment = Alignment.bottomCenter;
+      double offf = 180;
+      if (aniValue > 0) {
+        offf = -offf + offf * Curves.easeOutQuart.transformInternal(aniValue);
+      } else {
+        offf = -offf + offf * aniValue;
+      }
+      // offf = -offf + offf * aniValue;
+      return Transform.translate(
+        offset: Offset(0, offf),
+        child: Transform(
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, -0.001)
+            ..rotateX(pi / 2.5 - pi / 2.5 * aniValue),
+          alignment: alignment,
+          child: Opacity(opacity: .5+.5*aniValue.abs(),
+          child: child),
+        ),
+      );
+    }
   }
 }

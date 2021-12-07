@@ -1,8 +1,52 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:june_effect/june_effect.dart';
+
+class FBSwitcherPage extends StatelessWidget {
+  const FBSwitcherPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              child: Image.network(
+                "https://github.githubassets.com/images/modules/site/home/globe.jpg",
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox.expand(
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: Image.network(
+                  "https://github.githubassets.com/images/modules/site/home/astro-mona.webp",
+                  scale: 4.5,
+                ),
+                // child: Image.asset(
+                //   "images/astro_mona.webp",
+                //   fit: BoxFit.fill,
+                //   scale: 4,
+                // ),
+              ),
+            ),
+            FBSwitcherDemo(),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class FBSwitcherDemo extends StatefulWidget {
   @override
@@ -12,9 +56,9 @@ class FBSwitcherDemo extends StatefulWidget {
 class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
   final double padding = 24;
 
-  final double height = 300;
+  final double height = 270;
 
-  final double cardPadding = 24;
+  final double cardPadding = 16;
 
   final ValueNotifier<bool> valueNotifier = ValueNotifier(false);
 
@@ -101,27 +145,33 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
                         },
                       ),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       Align(
                         alignment: Alignment.center,
-                        child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _showLoading = true;
-                            });
-                          },
-                          child: ValueListenableBuilder(
-                            valueListenable: valueNotifier,
-                            builder: (BuildContext context, bool value, Widget? child) {
-                              return AnimatedScale(
+                        child: ValueListenableBuilder(
+                          valueListenable: valueNotifier,
+                          builder: (BuildContext context, bool value, Widget? child) {
+                            return TextButton(
+                              onPressed: () {
+                                if (value) {
+                                  setState(() {
+                                    _showLoading = true;
+                                  });
+                                }
+                              },
+                              child: AnimatedContainer(
                                 curve: value ? Curves.easeOutBack : Curves.easeInQuart,
-                                duration: const Duration(milliseconds: 500),
-                                scale: value ? 1 : 0,
-                                child: const Text("CONTINUE", style: TextStyle(fontSize: 25)),
-                              );
-                            },
-                          ),
+                                duration: const Duration(seconds: 1),
+                                child: Text("CONTINUE",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: value
+                                            ? Theme.of(context).primaryColor
+                                            : Theme.of(context).disabledColor)),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -147,7 +197,7 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20.0),
+                        padding: const EdgeInsets.only(bottom: 16.0),
                         child: Transform.translate(
                           offset: Offset(-75, -height / 2) * (1 - aniValue),
                           child: Opacity(
@@ -167,7 +217,7 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
           );
         },
         secondFront: (context, aniValue) {
-          return CacheWidget(
+          return Unchanging(
             child: Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               elevation: 20 * aniValue,
@@ -211,27 +261,33 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
                         },
                       ),
                       const SizedBox(
-                        height: 30,
+                        height: 20,
                       ),
                       Align(
                         alignment: Alignment.center,
-                        child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _showLoading = true;
-                            });
-                          },
-                          child: ValueListenableBuilder(
-                            valueListenable: valueNotifier,
-                            builder: (BuildContext context, bool value, Widget? child) {
-                              return AnimatedScale(
+                        child: ValueListenableBuilder(
+                          valueListenable: valueNotifier,
+                          builder: (BuildContext context, bool value, Widget? child) {
+                            return TextButton(
+                              onPressed: () {
+                                if (value) {
+                                  setState(() {
+                                    _showLoading = true;
+                                  });
+                                }
+                              },
+                              child: AnimatedContainer(
                                 curve: value ? Curves.easeOutBack : Curves.easeInQuart,
-                                duration: const Duration(milliseconds: 500),
-                                scale: value ? 1 : 0,
-                                child: const Text("CONTINUE", style: TextStyle(fontSize: 25)),
-                              );
-                            },
-                          ),
+                                duration: const Duration(seconds: 1),
+                                child: Text("CONTINUE",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: value
+                                            ? Theme.of(context).primaryColor
+                                            : Theme.of(context).disabledColor)),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -242,7 +298,7 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
           );
         },
         secondBack: (context, aniValue) {
-          return CacheWidget(
+          return Unchanging(
             child: Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: InkWell(

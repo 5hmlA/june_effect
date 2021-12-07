@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import '../unchanging_wrapper.dart';
+
 /// aniValue 0-1 后面到前面
 typedef AniBuilder = Widget Function(BuildContext context, double aniValue);
 
@@ -125,7 +127,7 @@ class BackFrontSwitcherState extends State<BackFrontSwitcher> with SingleTickerP
                     child: Transform(
                       transform: Matrix4.identity()
                         ..setEntry(3, 2, 0.001)
-                        ..translate(.0, 0, _Z * (1)),
+                        ..translate(.0, .0, _Z.toDouble()),
                       alignment: Alignment.center,
                       child: Transform.scale(
                         scale: 0.85,
@@ -138,11 +140,7 @@ class BackFrontSwitcherState extends State<BackFrontSwitcher> with SingleTickerP
                   padding: EdgeInsets.only(bottom: widget.offset),
                   child: Transform.translate(
                     offset: Offset(0, widget.offset + offsetNormal()),
-                    child: Transform.scale(
-                      scale: 0.8 + 0.2,
-                      alignment: Alignment.bottomCenter,
-                      child: firstFrount,
-                    ),
+                    child: firstFrount,
                   ),
                 ),
               ],
@@ -158,7 +156,7 @@ class BackFrontSwitcherState extends State<BackFrontSwitcher> with SingleTickerP
   double offsetSlow() {
     return 1.1 *
         _showFrom *
-        (1.55 * Curves.ease.transformInternal(1 - _animationControl.value).clamp(0, 1));
+        (2.22 * Curves.ease.transformInternal(1 - _animationControl.value).clamp(0, 1));
   }
 
   /// 后面的第二个 往前转 变为第一个
@@ -249,22 +247,9 @@ class BackFrontSwitcherState extends State<BackFrontSwitcher> with SingleTickerP
       return temp;
     }
     Widget buildWidget = builder(context, aniValue);
-    if (buildWidget is CacheWidget) {
+    if (buildWidget is Unchanging) {
       _cache[index] = buildWidget;
     }
     return buildWidget;
-  }
-}
-
-class CacheWidget extends StatelessWidget {
-  final Widget child;
-
-  const CacheWidget({Key? key, required this.child}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      return child;
-    });
   }
 }

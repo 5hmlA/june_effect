@@ -31,18 +31,23 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Container(
-            color: Colors.black12,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  FBSwitcherDemo(),
-                  const DigitalSimple(),
-                  const PageViewSimple(),
-                ],
-              ),
-            )),
+        body: body(),
+        // body: DigitalSimple(),
       ),
     );
+  }
+
+  Container body() {
+    return Container(
+          color: Colors.black12,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // FBSwitcherDemo(),
+                const DigitalSimple(),
+                const PageViewSimple(),
+              ],
+            ),
+          ));
   }
 }
