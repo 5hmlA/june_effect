@@ -116,7 +116,7 @@ class _JunePageViewState extends State<JunePageView> {
         builder: (context, child) {
           double page = pageSafe(_pageController);
           final double changing = 1 - (page - index).abs();
-          if(widget.transform == null) {
+          if (widget.transform == null) {
             return item!;
           }
           return widget.transform!.transform(index, page, changing, item!);
@@ -182,10 +182,10 @@ class CubeTransform extends PageTransform {
     if (aniValue < 0) {
       return const SizedBox();
     }
-    if (modifier?.scrollDirection == Axis.horizontal) {
-      return horizontal(aniValue, index, page, child);
-    } else {
+    if (modifier?.scrollDirection == Axis.vertical) {
       return vertical(aniValue, index, page, child);
+    } else {
+      return horizontal(aniValue, index, page, child);
     }
   }
 
@@ -237,49 +237,56 @@ class CubeTransform extends PageTransform {
 }
 
 class StackTransform extends PageTransform {
-  StackTransform();
+  final double originAngle;
+  final double initialScale;
+
+  StackTransform({
+    this.originAngle = pi / 2.6,
+    this.initialScale = .8,
+  });
 
   @override
   Widget transform(int index, double page, double aniValue, Widget child) {
-
-    if (modifier?.scrollDirection == Axis.horizontal) {
-      return horizontal(aniValue, index, page, child);
-    } else {
+    print("transform > [index, page, aniValue, child] === ${modifier?.scrollDirection} ");
+    if (modifier?.scrollDirection == Axis.vertical) {
       return vertical(aniValue, index, page, child);
+    } else {
+      return horizontal(aniValue, index, page, child);
     }
   }
 
   Transform horizontal(double aniValue, int index, double page, Widget child) {
     var alignment = Alignment.centerRight;
     var value = 1 - aniValue;
-    if (index > 0) {
-      if (page >= index) {
-        /// _pageController.page > index 向右滑动 划出下一页 下一页可见
-        alignment = Alignment.centerRight;
-        value = 1 - aniValue;
-      } else {
-        /// _pageController.page < index 向左滑动 划出上一页
-        alignment = Alignment.centerLeft;
-        value = aniValue - 1;
-      }
+    if (page >= index) {
+      /// _pageController.page > index 向右滑动 划出下一页 下一页可见
+      return Transform(
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, -0.001)
+          ..rotateY(pi / -2 * value),
+        alignment: alignment,
+        child: child,
+      );
+    } else {
+      /// _pageController.page < index 向下滑动 划出上一页
+      alignment = Alignment.centerLeft;
+      var angle = originAngle - originAngle * aniValue;
+      return Transform(
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, 0.001)
+          ..scale(initialScale + 0.2 * aniValue, initialScale + 0.2 * aniValue, 1)
+          ..rotateY(angle.clamp(0, pi / 2)),
+        alignment: alignment,
+        child: Opacity(opacity: .5 + .5 * aniValue.abs(), child: child),
+      );
     }
-    return Transform(
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.001)
-        ..rotateY(pi / 2 * value),
-      alignment: alignment,
-      child: child,
-    );
   }
 
-  Transform vertical(double aniValue, int index, double page, Widget child) {
-    var alignment = Alignment.centerRight;
+  Widget vertical(double aniValue, int index, double page, Widget child) {
+    var alignment = Alignment.bottomCenter;
     var value = 1 - aniValue;
     if (page >= index) {
       /// _pageController.page > index 向右滑动 划出下一页 下一页可见
-      alignment = Alignment.bottomCenter;
-
-      value = 1 - (aniValue);
       return Transform(
         transform: Matrix4.identity()
           ..setEntry(3, 2, -0.001)
@@ -289,24 +296,15 @@ class StackTransform extends PageTransform {
       );
     } else {
       /// _pageController.page < index 向下滑动 划出上一页
-      alignment = Alignment.bottomCenter;
-      double offf = 180;
-      if (aniValue > 0) {
-        offf = -offf + offf * Curves.easeOutQuart.transformInternal(aniValue);
-      } else {
-        offf = -offf + offf * aniValue;
-      }
-      // offf = -offf + offf * aniValue;
-      return Transform.translate(
-        offset: Offset(0, offf),
-        child: Transform(
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, -0.001)
-            ..rotateX(pi / 2.5 - pi / 2.5 * aniValue),
-          alignment: alignment,
-          child: Opacity(opacity: .5+.5*aniValue.abs(),
-          child: child),
-        ),
+      alignment = Alignment.topCenter;
+      var angle = originAngle - originAngle * aniValue;
+      return Transform(
+        transform: Matrix4.identity()
+          ..setEntry(3, 2, -0.001)
+          ..scale(initialScale + 0.2 * aniValue, initialScale + 0.2 * aniValue, 1)
+          ..rotateX(angle.clamp(0, pi / 2)),
+        alignment: alignment,
+        child: Opacity(opacity: .5 + .5 * aniValue.abs(), child: child),
       );
     }
   }

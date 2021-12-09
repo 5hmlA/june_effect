@@ -224,7 +224,7 @@ class _FBSwitcherDemoState extends State<FBSwitcherDemo> {
               child: SizedBox(
                 height: height,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(cardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
